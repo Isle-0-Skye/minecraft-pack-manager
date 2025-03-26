@@ -21,22 +21,23 @@ def invalid_path_popup(platform_os, photon_root):
     customtkinter.set_appearance_mode('dark')
     customtkinter.set_default_color_theme('green')
     pop.title('Photon')
-    if platform_os == 'Linux':
-        icon='warning.png'
-    elif platform_os == 'Windows':
-        icon='warning.ico'
-    image = PhotoImage(file=os.path.join(photon_root, 'assets', icon))
-    pop.wm_iconphoto(True, image)
-    center_window(400, 100, pop)
+    # image = PhotoImage(file=os.path.join(photon_root, 'assets', 'warning.png'))
+    # pop.wm_iconphoto(True, image)
+    # center_window(400, 100, pop)
+    pop.geometry('400x100')
     customtkinter.CTkLabel(pop, text='Invalid file path', font=('Consolas', 32)).pack(fill='both', expand=True)
+    pop.lift()
     pop.mainloop()
+    pop.lift()
 
 
-def path_seperators():
+def path_seperators(platform_os):
     seperators=[]
     for seperator in os.path.sep, os.path.altsep:
         if seperator:
             seperators.append(seperator)
+            if platform_os == 'Windows':
+                break
     return seperators
 
 
@@ -47,7 +48,7 @@ def file_path_check(platform_os, photon_root, widget, instances_folder=None):
         invalid_path_popup(platform_os, photon_root)
         return(instances_folder, False)
 
-    for seperator in path_seperators():
+    for seperator in path_seperators(platform_os):
         setting_value=instances_folder.removesuffix(seperator)
         instances_folder_split=instances_folder.split(seperator)
         if len(instances_folder_split) < 3:
@@ -198,13 +199,14 @@ def main(platform_os, venv_internal, venv_bin, photon_root, AppFolderName, AppDi
     root.title(AppDisplayName)
     if platform_os == 'Linux':
         rclone_exe=os.path.join(photon_root, 'tools', 'rclone')
-        icon='minecraft.png'
     elif platform_os == 'Windows':
         rclone_exe=os.path.join(photon_root, 'tools', 'rclone.exe')
-        icon='minecraft.ico'
-    image = PhotoImage(file=os.path.join(photon_root, 'assets', icon))
+    image = PhotoImage(file=os.path.join(photon_root, 'assets', 'minecraft.png'))
     root.wm_iconphoto(True, image)
-    root.wm_iconbitmap()
+    try:
+        root.wm_iconbitmap(default='minecraft.ico')
+    except:
+        pass
     center_window(600, 280, root)
 
     tabs=customtkinter.CTkTabview(root, fg_color='transparent')
