@@ -1,0 +1,10 @@
+{
+	"Name":"minecraft_pack_manager",
+	"DisplayName":"Minecraft Pack Manager",
+	"Version":"0.6.0",
+	"VersionName":"The Better Working One",
+	"ReleaseDate":"2025-03-26",
+	"Build":"3",
+	"Description":"Basic interface to help manage and share minecraft instances",
+	"Icon":"minecraft"
+}
