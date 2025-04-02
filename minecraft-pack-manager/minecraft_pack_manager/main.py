@@ -1,406 +1,422 @@
 import os
 import sys
+import platform
 import subprocess
-import json
+import logging
 import threading
-
+import json
+import importlib.util
 import customtkinter
+import mcworldlib as mc
+import shutil
 
+from logging import config
 from tkinter import PhotoImage
 
 
-def center_window(window_width, window_height, window):
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
-    center_x = int(screen_width/2 - window_width/2)
-    center_y = int(screen_height/2 - window_height/2)
-    window.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+def main(PhotonVars, AppManifest):
+    def logging_setup():
+        # if logs does not exists logging throws an error
+        os.makedirs(os.path.join(PhotonVars['photon_root_dir'], 'logs'), exist_ok=True)
 
-def invalid_path_popup(platform_os, photon_root):
-    pop=customtkinter.CTkToplevel()
-    customtkinter.set_appearance_mode('dark')
-    customtkinter.set_default_color_theme('green')
-    pop.title('Photon')
-    # image = PhotoImage(file=os.path.join(photon_root, 'assets', 'warning.png'))
-    # pop.wm_iconphoto(True, image)
-    # center_window(400, 100, pop)
-    pop.geometry('400x100')
-    customtkinter.CTkLabel(pop, text='Invalid file path', font=('Consolas', 32)).pack(fill='both', expand=True)
-    pop.lift()
-    pop.mainloop()
-    pop.lift()
+        spec = importlib.util.spec_from_file_location('photon_logger.py', os.path.join(PhotonVars['photon_root_dir'], 'photon_logger.py'))
+        photon_logger=importlib.util.module_from_spec(spec)   
+        spec.loader.exec_module(photon_logger)
 
+        # add and configure custom_handler
+        photon_logger.setup(os.path.join(PhotonVars['photon_root_dir'], 'logs'), 'DEBUG', 'minecraftpackmanager.log')
+        log=logging.getLogger('__name__')
+        log.setLevel(logging.DEBUG)
+        custom_handler=logging.StreamHandler()
+        custom_handler.setLevel('DEBUG')
+        custom_handler.setFormatter(photon_logger.custom_formatter())
+        log.addHandler(custom_handler)
 
-def path_seperators(platform_os):
-    seperators=[]
-    for seperator in os.path.sep, os.path.altsep:
-        if seperator:
-            seperators.append(seperator)
-            if platform_os == 'Windows':
-                break
-    return seperators
+        # seperate each run instance to make reading logs easier
+        log.debug(f'{"NEW INSTANCE":{"-"}^100}')
+
+        return log
+
+    log=logging_setup()
 
 
-def file_path_check(platform_os, photon_root, widget, instances_folder=None):
-    if instances_folder == None:
-        instances_folder=widget.get()
-    if (instances_folder in ['', None]) or (' ' in instances_folder):
-        invalid_path_popup(platform_os, photon_root)
-        return(instances_folder, False)
-
-    for seperator in path_seperators(platform_os):
-        setting_value=instances_folder.removesuffix(seperator)
-        instances_folder_split=instances_folder.split(seperator)
-        if len(instances_folder_split) < 3:
-            invalid_path_popup(platform_os, photon_root)
-            return(instances_folder, False)
-
-    setting_value='\\'.join(instances_folder_split)
-    if not os.path.exists(instances_folder):
-        setting_value='/'.join(instances_folder_split)
-        if not os.path.exists(instances_folder):
-            invalid_path_popup(platform_os, photon_root)
-            return(instances_folder, False)
-
-    return(instances_folder, True)
+    def center_window(window_width, window_height, window):
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+        center_x = int(screen_width/2 - window_width/2)
+        center_y = int(screen_height/2 - window_height/2)
+        log.debug(f'setting window {window} to {window_width}x{window_height}+{center_x}+{center_y}')
+        window.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
 
 
-def settings_update(platform_os, photon_root, AppCommandName, setting, setting_value=None, widget=None):
-    # default_settings='{"DarkTheme":true, "DesktopShortcut":true}'
-    # os.makedirs(os.path.join(photon_root, 'settings', AppCommandName), exist_ok=True)
-    # with open(os.path.join(photon_root, 'settings', AppCommandName, 'user_settings.json'), 'r') as user_settings_file:
-    #     try:
-    #         user_settings_json=json.load(user_settings_file)
-    #     except Exception as error:
-    #         print(error)
-    #         user_settings_json=json.loads(default_settings)
+    def show_frame(self, page):
+        for frame in self.frames.values():
+            frame.pack_forget()
 
-    file_path_check(platform_os, photon_root, widget)
-
-    # user_settings_json[setting]=setting_value
-
-    # with open(os.path.join(photon_root, 'settings', AppCommandName, 'user_settings.json'), 'w+') as user_settings_file:
-        # json.dump(user_settings_json, user_settings_file)
+        log.debug(f'showing frame / page {page}')
+        self.frames[page].pack(side='top', fill='both', expand=True)
 
 
-def refresh_available_upload(platform_os,  photon_root, rclone_exe, widget, dropdown):
-    print('refresh upload')
-    (instances_folder, bool)=file_path_check(platform_os,  photon_root, widget)
-    if bool:
-        local_instances=[]
-        for name in os.listdir(instances_folder):
-            if os.path.isdir(os.path.join(instances_folder, name)):
-                local_instances.append(name)
-        try:
-            local_instances.remove('_LAUNCHER_TEMP')
-        except ValueError as error:
-            print (error)
+    def path_verify(path_entry, upload_button, download_button):
+        path=path_entry.get().strip().removesuffix(PhotonVars['platform_seperator'])
+        log.debug(f'user input path is {path}')
+        path_split=path.split(PhotonVars['platform_seperator'])
 
-        dropdown.configure(values=local_instances)
+        if (not os.path.exists(path)) or (len(path_split) < 3):
+            log.info('invalid path')
+            popup=customtkinter.CTkToplevel()
+            popup.geometry('400x100')
+            popup_warning=customtkinter.CTkLabel(popup,
+                text='Invalid path',
+                font=('Consolas', 32)
+            ).pack(side='top', fill='both', expand=True)
 
-    else:
-        return
+            upload_button.configure(state='disabled')
+            download_button.configure(state='disabled')
+
+            return path, False
+        
+        else:
+            upload_button.configure(state='normal')
+            download_button.configure(state='normal')
+        
+        return path, True
 
 
-def refresh_available_download(platform_os,  photon_root, rclone_exe, widget, dropdown, rclone_config):
-    print('refresh download')
-    (instances_folder, bool)=file_path_check(platform_os,  photon_root, widget)
-    if bool:
-        def update_thread():
-            remote_instances=[]
-            rc_cmd=subprocess.run([rclone_exe, 'lsjson', 'GDR:', '--max-depth=3', '--dirs-only', '--no-modtime', '--no-mimetype', f'--config={rclone_config}'], capture_output=True, text=True)
-            rcjson=json.loads(rc_cmd.stdout)
+    def path_scan(local, dropdown, path_entry, upload_button, download_button):
+        if local:
+            log.debug('scan local')
+            (instances_folder, bool)=path_verify(path_entry, upload_button, download_button)
+            if bool:
+                local_instances=[]
+                for name in os.listdir(instances_folder):
+                    if os.path.isdir(os.path.join(instances_folder, name)):
+                        local_instances.append(name)
+                try:
+                    local_instances.remove('_LAUNCHER_TEMP')
+                except ValueError as error:
+                    log.warning(error)
 
-            for obj in rcjson:
-                if obj['Path'].endswith('/Modpacks') or obj['Path'].endswith('/mods') or obj['Path'] in ['AC1', 'AC2', 'AC3']:
-                    pass
+                dropdown.configure(values=local_instances)
+
+        else:
+            log.debug('scan remote')
+            (instances_folder, bool)=path_verify(path_entry, upload_button, download_button)
+            if bool:
+                def update_thread():
+                    remote_instances=[]
+                    rclone_cmd=[os.path.join(PhotonVars['photon_root_dir'], 'tools', PhotonVars['rclone_exe']), 'lsjson', 'GDR:', '--max-depth=3', '--dirs-only', '--no-modtime', '--no-mimetype', f'--config={PhotonVars['rclone_config_file']}']
+                    rclone_proc=subprocess.run(rclone_cmd, capture_output=True, text=True)
+                    rclonejson=json.loads(rclone_proc.stdout)
+                    log.debug(json.dumps(rclonejson, indent=4))
+
+                    for obj in rclonejson:
+                        if obj['Path'].endswith('/Modpacks') or obj['Path'].endswith('/mods') or obj['Path'] in ['AC1', 'AC2', 'AC3']:
+                            pass
+                        else:
+                            remote_instances.append(obj['Path'])
+
+                    dropdown.configure(values=remote_instances)
+
+                threading.Thread(target=update_thread, daemon=True).run()
+
+        log.debug(dropdown.get())
+
+
+    def transfer(local, dropdown, path_entry, upload_button, download_button):
+        instance=dropdown.get().strip().removesuffix(PhotonVars['platform_seperator'])
+        log.debug(instance)
+        if instance not in dropdown.cget('values'):
+            log.info('invalid instance')
+            return
+
+        (instances_folder, bool)=path_verify(path_entry, upload_button, download_button)
+        if bool:
+
+            for save in os.listdir(os.path.join(instances_folder, instance, '.minecraft', 'saves')):
+
+                world=mc.load(os.path.join(instances_folder, instance, '.minecraft', 'saves', save))
+                try:
+                    del world.level['Data']['Player']
+                except KeyError as error:
+                    log.warning(f'keyerror {error}')
+                world.save(os.path.join(PhotonVars['photon_root_dir'], '.cache', save))
+
+                shutil.move(
+                    os.path.join(PhotonVars['photon_root_dir'], '.cache', save, 'level.dat'),
+                    os.path.join(instances_folder, instance, '.minecraft', 'saves', save, 'level.dat')
+                )
+
+            if local:
+                if instance == 'TechPack':
+                    ACN='AC1'
+                elif instance == 'Cobblemon Modpack [Fabric]':
+                    ACN='AC2'
                 else:
-                    remote_instances.append(obj['Path'])
+                    ACN='AC3'
+                log.info(f'uploading {instance}')
+                gdrive_pth=f'GDR:{ACN}/Modpacks/'
+                rclone_cmd_src=os.path.join(instances_folder, instance)
+                rclone_cmd_dst=os.path.join(gdrive_pth, instance)
 
-            dropdown.configure(values=remote_instances)
+            else:
+                log.info(f'downloading {instance}')
+                gdrive_pth='GDR:'
+                instance_split=instance.split(PhotonVars['platform_seperator'])
+                rclone_cmd_src=f'{gdrive_pth}{instance}'
+                instance=instance_split.pop()
+                rclone_cmd_dst=os.path.join(instances_folder, instance)
 
-        threading.Thread(target=update_thread, daemon=True).run()
-
-    else:
-        return
-
-
-def upload_instance(platform_os, photon_root, widget, dropdown, rclone_exe, rclone_config):
-    instance=dropdown.get().strip()
-    if instance in ['', None]:
-        return
-    (instances_folder, bool)=file_path_check(platform_os, photon_root, widget)
-    print('uploading %s' % instance)
-
-    if instance == 'TechPack':
-        ACN='AC1'
-    elif instance == 'Cobblemon Modpack [Fabric]':
-        ACN='AC2'
-    else:
-        ACN='AC3'
-
-    rclone_cmd=[f'{rclone_exe}', 'sync', 
-        f'{os.path.join(instances_folder, instance)}', 
-        f'GDR:{os.path.join(ACN, 'Modpacks', instance)}', 
-        '--transfers=20', '--checkers=50', '--fast-list', '--max-backlog=-1', '-P', 
-        '--exclude="{logs/**, backups/**, options.txt}"', 
-        f'--config={rclone_config}'
-    ]
-    print(rclone_cmd)
-    transfer=subprocess.run(rclone_cmd, capture_output=True, text=True)
-    print('-----')
-    print(transfer.stdout)
-    print(transfer.stdout)
+            rclone_cmd=[
+                os.path.join(PhotonVars['photon_root_dir'], 'tools', PhotonVars['rclone_exe']),
+                'sync', 
+                rclone_cmd_src,
+                rclone_cmd_dst,
+                '--transfers=20', '--checkers=50', '--fast-list', '--max-backlog=-1', '-P',
+                '--exclude="{logs/**, backups/**, options.txt}"',
+                f'--config={PhotonVars['rclone_config_file']}'
+            ]
+            log.debug(rclone_cmd)
+            subprocess.run(rclone_cmd)
 
 
-def download_instance(platform_os, photon_root, widget, dropdown, rclone_exe, rclone_config):
-    instance=dropdown.get().strip()
-    if instance in ['', None]:
-        return
-    (instances_folder, bool)=file_path_check(platform_os, photon_root, widget)
-    print('downloading %s' % instance)
-    instance_path=instance
-    instance_split=instance.split('/')
-    instance=instance_split[2]
+    def self_update():
+        log.info('updating')
+        cmd=[PhotonVars['python'], os.path.join(PhotonVars['photon_root_dir'], 'photon.py'), 'update', 'minecraft-pack-manager']
+        log.debug(cmd)
 
-    rclone_cmd=[f'{rclone_exe}', 'sync',
-        f'GDR:{instance_path}' ,
-        f'{os.path.join(instances_folder, instance)}',
-        '--transfers=20', '--checkers=50', '--fast-list', '--max-backlog=-1', '-P', 
-        '--exclude="{logs/**, backups/**, options.txt}"', 
-        f'--config={rclone_config}'
-    ]
-    print(rclone_cmd)
-    transfer=subprocess.run(rclone_cmd, capture_output=True, text=True)
-    print('-----')
-    print(transfer.stdout)
-    print(transfer.stdout)
+        if PhotonVars['platform_os'] == 'Linux':
+            run_proc=subprocess.Popen(cmd, start_new_session=True)
+        elif PhotonVars['platform_os'] == 'Windows':
+            run_proc=subprocess.Popen(cmd, start_new_session=True, creationflags=subprocess.DETACHED_PROCESS)
 
-
-def update(platform_os, venv_internal, venv_bin, photon_root, AppFolderName, AppDisplayName, AppCommandName):
-    for cmd in ['python', 'python3', 'py']:
         try:
-            subprocess.Popen([cmd, os.path.join(photon_root, 'update.py'), platform_os, venv_internal, venv_bin, photon_root, AppFolderName, AppDisplayName, AppCommandName])
+            run_proc.detach()
         except:
             pass
-        else:
-            break
-    sys.exit()
+
+        sys.exit(0)
+
+    class minecraftpackmanager(customtkinter.CTk):
+        def __init__(self, fg_color = None, **kwargs):
+            super().__init__(fg_color, **kwargs)
+
+            customtkinter.set_appearance_mode('dark')
+            customtkinter.set_default_color_theme('green')
+
+            self.title(f'{AppManifest['DisplayName']} - {AppManifest['Version']}')
+            self.wm_iconphoto(True, PhotoImage(file=os.path.join(PhotonVars['photon_root_dir'], 'assets', f'{AppManifest['Icon']}.png')))
+            try:
+                self.wm_iconbitmap(default=os.path.join(PhotonVars['photon_root_dir'], 'assets', 'minecraft.ico'))
+            except:
+                pass
+            center_window(600, 250, self)
+
+            ContainerFrame=customtkinter.CTkFrame(self)
+            ContainerFrame.pack(side='top', fill='both', expand=True)
+
+            self.frames={}
+            self.pages=[
+                home_page
+            ]
+
+            for page in self.pages:
+                self.frames[page]=page(ContainerFrame, self)
+
+            show_frame(self, home_page)
 
 
-def main(platform_os, venv_internal, venv_bin, photon_root, AppFolderName, AppDisplayName, AppCommandName):
-    rclone_config=os.path.join(photon_root, 'settings', 'rclone.conf')
+    class home_page(customtkinter.CTkFrame):
+        def __init__(self, master, controller, bg_color='transparent', fg_color='transparent', **kwargs):
+            super().__init__(master, bg_color='transparent', fg_color='transparent', **kwargs)
 
-    root=customtkinter.CTk()
+            home_page_tabview=customtkinter.CTkTabview(self, bg_color='transparent')
 
-    customtkinter.set_appearance_mode('dark')
-    customtkinter.set_default_color_theme('green')
+            exit_button=customtkinter.CTkButton(self,
+                height=30,
+                width=150,
+                text='Quit',
+                font=('Consolas', 20),
+                command=lambda:[sys.exit(0)],
+            )
 
-    root.title(AppDisplayName)
-    if platform_os == 'Linux':
-        rclone_exe=os.path.join(photon_root, 'tools', 'rclone')
-    elif platform_os == 'Windows':
-        rclone_exe=os.path.join(photon_root, 'tools', 'rclone.exe')
-    image = PhotoImage(file=os.path.join(photon_root, 'assets', 'minecraft.png'))
-    root.wm_iconphoto(True, image)
-    try:
-        root.wm_iconbitmap(default='minecraft.ico')
-    except:
-        pass
-    center_window(600, 280, root)
+            self.rowconfigure(0, weight=10)
+            self.rowconfigure(1, weight=1)
 
-    tabs=customtkinter.CTkTabview(root, fg_color='transparent')
-    for tab_name in ['Upload', 'Download', 'Settings']:
-        tabs.add(tab_name)
-        # if tab_name != 'Settings':
-        for i in range(3):
-            tabs.tab(tab_name).rowconfigure(i, weight=1)
-        tabs.tab(tab_name).columnconfigure(0, weight=1)
-        tabs.tab(tab_name).columnconfigure(1, weight=10)
-        tabs.tab(tab_name).columnconfigure(2, weight=1)
+            self.columnconfigure(0, weight=1)
 
-    title=customtkinter.CTkLabel(root, text=AppDisplayName, font=('Consolas', 32))
+            home_page_tabview.grid( row=0, column=0, padx=15, pady=5)
+            exit_button.grid(       row=1, column=0, padx=15, pady=5, sticky='e')
 
-    title.pack(side='top', fill='both', expand=True)
-    tabs.pack(side='top', fill='both', expand=True)
+            # # # # # # # # # # # 
+            #    UPLOAD PAGE    # 
+            # # # # # # # # # # # 
 
-    ##########  UPLOAD  ##########
+            home_page_tabview.add('Upload')
+            upload_label=customtkinter.CTkLabel(home_page_tabview.tab('Upload'),
+                height=30,
+                width=600,
+                text='Upload local files and overwrite cloud files',
+                font=('Consolas', 16),
+                wraplength=600
+            )
+            upload_button=customtkinter.CTkButton(home_page_tabview.tab('Upload'),
+                height=30,
+                width=250,
+                text='Upload',
+                font=('Consolas', 20),
+                command=lambda:[transfer(True, upload_dropdown, misc_path_entry, upload_button, download_button)],
+            )
+            upload_dropdown=customtkinter.CTkComboBox(home_page_tabview.tab('Upload'),
+                height=30,
+                width=600,
+                font=('Consolas', 20),
+                values=[],
+            )
+            upload_refresh_button=customtkinter.CTkButton(home_page_tabview.tab('Upload'),
+                height=30,
+                width=250,
+                text='Refresh',
+                font=('Consolas', 20),
+                command=lambda:[path_scan(True, upload_dropdown,misc_path_entry, upload_button, download_button)],
+            )
 
-    upload_page_description_label=customtkinter.CTkLabel(tabs.tab('Upload'),
-        height=25,
-        width=120,
-        text='Upload and overwrite cloud files',
-        font=('Consolas', 20),
-    )
-    upload_page_selection_dropdown=customtkinter.CTkComboBox(tabs.tab('Upload'),
-        height=25,
-        width=120,
-        font=('Consolas', 20),
-        values=[],
-    )
-    upload_page_refresh_button=customtkinter.CTkButton(tabs.tab('Upload'),
-        height=25,
-        width=120,
-        text='Refresh',
-        font=('Consolas', 20),
-        command=lambda:[
-            refresh_available_upload(platform_os,  photon_root, rclone_exe, settings_page_entry, upload_page_selection_dropdown)
-        ],
-    )
-    upload_page_upload_button=customtkinter.CTkButton(tabs.tab('Upload'),
-        height=25,
-        width=120,
-        text='Upload',
-        font=('Consolas', 20),
-        command=lambda:[
-            upload_instance(platform_os, photon_root, settings_page_entry, upload_page_selection_dropdown, rclone_exe, rclone_config)
-        ],
-    )
-    upload_page_exit_button=customtkinter.CTkButton(tabs.tab('Upload'),
-        height=25,
-        width=120,
-        text='Exit',
-        font=('Consolas', 20),
-        command=lambda:[
-            print(sys.exit(0))
-        ],
-    )
+            for i in range(0,2):
+                home_page_tabview.tab('Upload').rowconfigure(i, weight=1)
+                home_page_tabview.tab('Upload').columnconfigure(i, weight=1)
 
-    upload_page_description_label.grid(  row=0, column=0, padx=15, pady=15, sticky='ew', columnspan=3)
-    upload_page_selection_dropdown.grid( row=1, column=0, padx=15, pady=15, sticky='ew', columnspan=2)
-    upload_page_refresh_button.grid(     row=1, column=2, padx=15, pady=15, sticky='ew')
-    upload_page_upload_button.grid(      row=2, column=0, padx=15, pady=15, sticky='ew')
-    upload_page_exit_button.grid(        row=2, column=2, padx=15, pady=15, sticky='ew')
+            upload_label.grid(          row=0, column=0, padx=15, pady=5, columnspan=3)
+            upload_dropdown.grid(       row=1, column=0, padx=15, pady=5, columnspan=3)
+            upload_refresh_button.grid( row=2, column=0, padx=15, pady=5)
+            upload_button.grid(         row=2, column=2, padx=15, pady=5)
+            
+            upload_dropdown.set('')
 
-    upload_page_selection_dropdown.set('')
+            # # # # # # # # # # # # 
+            #    DOWNLOAD PAGE    # 
+            # # # # # # # # # # # # 
 
-    ##########  DOWNLOAD    ##########
+            home_page_tabview.add('Download')
+            download_label=customtkinter.CTkLabel(home_page_tabview.tab('Download'),
+                height=30,
+                width=600,
+                text='Download cloud files and overwrite local files',
+                font=('Consolas', 16),
+                wraplength=600
+            )
+            download_button=customtkinter.CTkButton(home_page_tabview.tab('Download'),
+                height=30,
+                width=250,
+                text='Download',
+                font=('Consolas', 20),
+                command=lambda:[transfer(False, download_dropdown, misc_path_entry, upload_button, download_button)],
+            )
+            download_dropdown=customtkinter.CTkComboBox(home_page_tabview.tab('Download'),
+                height=30,
+                width=600,
+                font=('Consolas', 20),
+                values=[],
+            )
+            download_refresh_button=customtkinter.CTkButton(home_page_tabview.tab('Download'),
+                height=30,
+                width=250,
+                text='Refresh',
+                font=('Consolas', 20),
+                command=lambda:[path_scan(False, download_dropdown,misc_path_entry, upload_button, download_button)],
+            )
 
-    download_page_description_label=customtkinter.CTkLabel(tabs.tab('Download'),
-        height=25,
-        width=120,
-        text='Download and overwrite local files',
-        font=('Consolas', 20),
-    )
-    download_page_selection_dropdown=customtkinter.CTkComboBox(tabs.tab('Download'),
-        height=25,
-        width=120,
-        font=('Consolas', 20),
-        values=[],
-    )
-    download_page_refresh_button=customtkinter.CTkButton(tabs.tab('Download'),
-        height=25,
-        width=120,
-        text='Refresh',
-        font=('Consolas', 20),
-        command=lambda:[
-            refresh_available_download(platform_os,  photon_root, rclone_exe, settings_page_entry, download_page_selection_dropdown, rclone_config)
-        ],
-    )
-    download_page_download_button=customtkinter.CTkButton(tabs.tab('Download'),
-        height=25,
-        width=120,
-        text='Download',
-        font=('Consolas', 20),
-        command=lambda:[
-            download_instance(platform_os, photon_root, settings_page_entry, download_page_selection_dropdown, rclone_exe, rclone_config)
-        ],
-    )
-    download_page_exit_button=customtkinter.CTkButton(tabs.tab('Download'),
-        height=25,
-        width=120,
-        text='Exit',
-        font=('Consolas', 20),
-        command=lambda:[
-            print(sys.exit(0))
-        ],
-    )
+            for i in range(0,2):
+                home_page_tabview.tab('Download').rowconfigure(i, weight=1)
+                home_page_tabview.tab('Download').columnconfigure(i, weight=1)
 
-    download_page_description_label.grid(  row=0, column=0, padx=15, pady=15, sticky='ew', columnspan=3)
-    download_page_selection_dropdown.grid( row=1, column=0, padx=15, pady=15, sticky='ew', columnspan=2)
-    download_page_refresh_button.grid(     row=1, column=2, padx=15, pady=15, sticky='ew')
-    download_page_download_button.grid(    row=2, column=0, padx=15, pady=15, sticky='ew')
-    download_page_exit_button.grid(        row=2, column=2, padx=15, pady=15, sticky='ew')
+            download_label.grid(          row=0, column=0, padx=15, pady=5, columnspan=3)
+            download_dropdown.grid(       row=1, column=0, padx=15, pady=5, columnspan=3)
+            download_refresh_button.grid( row=2, column=0, padx=15, pady=5)
+            download_button.grid(         row=2, column=2, padx=15, pady=5)
 
-    download_page_selection_dropdown.set('')
+            download_dropdown.set('')
 
-    ##########  SETTINGS    ##########
+            # # # # # # # # # # 
+            #    MISC PAGE    # 
+            # # # # # # # # # # 
 
-    settings_page_description_label=customtkinter.CTkLabel(tabs.tab('Settings'),
-        height=20,
-        width=120,
-        text='The folder to upload from or download to',
-        font=('Consolas', 20),
-    )
-    settings_page_entry=customtkinter.CTkEntry(tabs.tab('Settings'),
-        height=20,
-        width=120,
-        placeholder_text='path/to/instances/folder',
-        font=('Consolas', 20),
-    )
-    settings_page_apply_button=customtkinter.CTkButton(tabs.tab('Settings'),
-        height=20,
-        width=120,
-        text='Apply',
-        font=('Consolas', 20),
-        command=lambda:[
-            settings_update(
-                platform_os, 
-                photon_root,
-                AppCommandName,
-                'InstancePath',
-                widget=settings_page_entry
-        )],
-    )    
-    settings_page_update_button=customtkinter.CTkButton(tabs.tab('Settings'), 
-        height=20,
-        width=120,
-        text='Update', 
-        font=('Consolas', 20),
-        command=lambda:[update(
-            platform_os,
-            venv_internal,
-            venv_bin, 
-            photon_root, 
-            AppFolderName, 
-            AppDisplayName, 
-            AppCommandName
-        )]
-    )
-    settings_page_exit_button=customtkinter.CTkButton(tabs.tab('Settings'), 
-        height=20,
-        width=120,
-        text='Exit',
-        font=('Consolas', 20),
-        command=lambda:[
-            print(sys.exit(0))
-        ],
-    )
+            home_page_tabview.add('Misc')
+            misc_path_label=customtkinter.CTkLabel(home_page_tabview.tab('Misc'),
+                height=30,
+                width=600,
+                text='The folder that contains instances:',
+                font=('Consolas', 16),
+                wraplength=600
+            )
+            misc_path_entry=customtkinter.CTkEntry(home_page_tabview.tab('Misc'),
+                height=30,
+                width=600,
+                placeholder_text='path/to/instances/folder',
+                font=('Consolas', 20),
+            )
+            misc_path_button=customtkinter.CTkButton(home_page_tabview.tab('Misc'),
+                height=30,
+                width=250,
+                text='Verify',
+                font=('Consolas', 20),
+                command=lambda:[path_verify(misc_path_entry, upload_button, download_button)],
+            )
+            misc_update_button=customtkinter.CTkButton(home_page_tabview.tab('Misc'),
+                height=30,
+                width=250,
+                text='Update',
+                font=('Consolas', 20),
+                command=lambda:[self_update()],
+            )
 
-    settings_page_description_label.grid( row=0, column=0, padx=15, pady=15, sticky='ew', columnspan=3)
-    settings_page_entry.grid(             row=1, column=0, padx=15, pady=15, sticky='ew', columnspan=2)
-    settings_page_apply_button.grid(      row=1, column=2, padx=15, pady=15, sticky='ew')
-    settings_page_update_button.grid(     row=2, column=0, padx=15, pady=15, sticky='ew')
-    settings_page_exit_button.grid(       row=2, column=2, padx=15, pady=15, sticky='ew')
+            for i in range(0,2):
+                home_page_tabview.tab('Misc').rowconfigure(i, weight=1)
+                home_page_tabview.tab('Misc').columnconfigure(i, weight=1)
+
+            misc_path_label.grid(    row=0, column=0, padx=15, pady=5, columnspan=3)
+            misc_path_entry.grid(    row=1, column=0, padx=15, pady=5, columnspan=3)
+            misc_path_button.grid(   row=2, column=0, padx=15, pady=5)
+            misc_update_button.grid( row=2, column=2, padx=15, pady=5)
+
+            for tab_button in home_page_tabview._segmented_button._buttons_dict.values():
+                tab_button.configure(height=30, width=120, font=('Consolas', 18))
 
 
-    root.mainloop()
+    app=minecraftpackmanager()
+    app.mainloop()
 
 
 if __name__ == '__main__':
-    required_args=['platform_os', 'venv_internal', 'venv_bin', 'photon_root', 'AppFolderName', 'AppDisplayName', 'AppCommandName']
-    i=0
-    for arg in required_args:
-        x=i
-        i=i+1
-        try:
-            required_args[x]=sys.argv[i]
-        except:
-            sys.exit('this file should not be ran directly, use photon')
+    platform_os=platform.system()
+    if platform_os == 'Linux':
+        platform_seperator='/'
+    
+    elif platform_os == 'Windows':
+        platform_seperator='\\'
 
-    try:
-        main(required_args[0], required_args[1], required_args[2], required_args[3], required_args[4], required_args[5], required_args[6])
-    except TypeError as error:
-        print(error)
-        sys.exit('this file should not be ran directly, use photon')
+    main_file_path=os.path.realpath(__file__)
+
+    root_venv_connector=f'apps{platform_seperator}minecraft-pack-manager'
+    main_file_path_split=main_file_path.split(root_venv_connector)
+
+    photon_root=main_file_path_split[0]
+    internal_venv_path=main_file_path_split[1]
+
+    if os.path.exists(os.path.join(photon_root, '.cache', 'PhotonVars.json')):
+        with open(os.path.join(photon_root, '.cache', 'PhotonVars.json')) as PhotonVars_file:
+            PhotonVars=json.load(PhotonVars_file)
+
+    else:
+        sys.exit('ERROR: missing variable file')
+
+
+    if os.path.exists(os.path.join(photon_root, 'manifests', 'installed', 'minecraft-pack-manager.json')):
+        with open(os.path.join(photon_root, 'manifests', 'installed', 'minecraft-pack-manager.json')) as Manifest_file:
+            AppManifest=json.load(Manifest_file)
+
+    else:
+        sys.exit('ERROR: missing manifest file')
+
+
+    main(PhotonVars, AppManifest)
 
