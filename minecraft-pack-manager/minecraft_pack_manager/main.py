@@ -132,22 +132,21 @@ def main(PhotonVars, AppManifest):
 
         (instances_folder, bool)=path_verify(path_entry, upload_button, download_button)
         if bool:
-
-            for save in os.listdir(os.path.join(instances_folder, instance, '.minecraft', 'saves')):
-
-                world=mc.load(os.path.join(instances_folder, instance, '.minecraft', 'saves', save))
-                try:
-                    del world.level['Data']['Player']
-                except KeyError as error:
-                    log.warning(f'keyerror {error}')
-                world.save(os.path.join(PhotonVars['photon_root_dir'], '.cache', save))
-
-                shutil.move(
-                    os.path.join(PhotonVars['photon_root_dir'], '.cache', save, 'level.dat'),
-                    os.path.join(instances_folder, instance, '.minecraft', 'saves', save, 'level.dat')
-                )
-
             if local:
+                for save in os.listdir(os.path.join(instances_folder, instance, '.minecraft', 'saves')):
+
+                    world=mc.load(os.path.join(instances_folder, instance, '.minecraft', 'saves', save))
+                    try:
+                        del world.level['Data']['Player']
+                    except KeyError as error:
+                        log.warning(f'keyerror {error}')
+                    world.save(os.path.join(PhotonVars['photon_root_dir'], '.cache', save))
+
+                    shutil.move(
+                        os.path.join(PhotonVars['photon_root_dir'], '.cache', save, 'level.dat'),
+                        os.path.join(instances_folder, instance, '.minecraft', 'saves', save, 'level.dat')
+                    )
+
                 if instance == 'TechPack':
                     ACN='AC1'
                 elif instance == 'Cobblemon Modpack [Fabric]':
@@ -162,7 +161,7 @@ def main(PhotonVars, AppManifest):
             else:
                 log.info(f'downloading {instance}')
                 gdrive_pth='GDR:'
-                instance_split=instance.split(PhotonVars['platform_seperator'])
+                instance_split=instance.split('/')
                 rclone_cmd_src=f'{gdrive_pth}{instance}'
                 instance=instance_split.pop()
                 rclone_cmd_dst=os.path.join(instances_folder, instance)
