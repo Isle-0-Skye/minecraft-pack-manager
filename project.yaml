@@ -1,0 +1,18 @@
+project:
+    name: !!str "Minecraft Pack Manager"
+
+    version:
+        full: !!str "1.0.0"
+        major: !!int 1
+        minor: !!int 0
+        revision: !!int 0
+        build: !!int 1
+
+language:
+    name: !!str "python"
+
+    version:
+        full: !!str "3.12.3"
+        major: !!int 3
+        minor: !!int 12
+        revision: !!int 3
