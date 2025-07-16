@@ -1,0 +1,19 @@
+// Place your key bindings in this file to override the defaults
+[
+    {
+        "key": "shift+alt+\\",
+        "command": "editor.action.insertSnippet",
+        "when": "editorTextFocus && editorLangId == 'python'",
+        "args": {
+            "snippet": "#< ------------------------ >#"
+        }
+    },
+    {
+        "key": "alt+\\",
+        "command": "editor.action.insertSnippet",
+        "when": "editorTextFocus && editorLangId == 'python'",
+        "args": {
+            "snippet": "#< - >#"
+        }
+    }
+]
