@@ -3,7 +3,9 @@ modules/
 resources/fonts/
 resources/skins/
 settings/players.yaml
+settings/rclone.conf
 settings/user_config.yaml
+tools/
 
 # photon added:
 manifests/

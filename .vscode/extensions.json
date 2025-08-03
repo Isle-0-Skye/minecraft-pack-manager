@@ -1,4 +1,12 @@
 {
-    "unwantedRecommendations": [],
-    "recommendations": ["github.vscode-pull-request-github", "ms-python.vscode-pylance", "ms-python.python", "ms-python.debugpy"]
+    "unwantedRecommendations": [
+
+    ],
+    "recommendations": [
+        "github.vscode-pull-request-github", 
+        "ms-python.vscode-pylance", 
+        "ms-python.python", 
+        "ms-python.debugpy",
+        "charliermarsh.ruff"
+    ]
 }

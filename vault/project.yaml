@@ -1,0 +1,58 @@
+format_version: !!int 1
+
+# < general information about the project > #
+project:
+  type: !!str "package"
+  name: !!str "minecraft_pack_manager"
+  display_name: !!str "Minecraft Pack Manager"
+  summary: !!str "Basic interface to help manage and share minecraft instances"
+
+  # < project version information > #
+  version:
+    full: !!str "1.0.0"
+    released: !!str "2025-06-22"
+    name: !!str "We are number one"
+
+    major: !!int 1
+    minor: !!int 0
+    revision: !!int 0
+
+  # < languages or translations the project supports > #
+  languages: ["English"]
+
+# < information about each of the major platforms > #
+# < the name matches platform.system() > #
+platform:
+  Windows:
+    # < category is the folder or category in the start menu > #
+    # < if set to no_folder then it will not be put in a folder > #
+    category: !!str 
+    keywords: []
+
+    # < platform version information > #
+    known_supported: !!bool true
+    version:
+      known_supported: ["11", "10"]
+      known_unsupported: []
+
+  # < ------------------------ > #
+
+  Linux:
+    category: !!str "Game"
+    keywords: ["games", "minecraft"]
+
+    known_supported: !!bool true
+    version:
+      known_supported: ["6.11", "6.14"]
+      known_unsupported: []
+
+  # < ------------------------ > #
+
+  Darwin:
+    category: !!str 
+    keywords: []
+
+    known_supported: !!bool false
+    version:
+      known_supported: []
+      known_unsupported: []

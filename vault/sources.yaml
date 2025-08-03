@@ -1,0 +1,28 @@
+format_version: !!int 1
+
+# < information for the installation/uninstallation/update process > #
+latest:
+  home_page: !!str "https://github.com/Isle-0-Skye/minecraft_pack_manager"
+  # < remote source > #
+  download_url: !!str
+  # < local source > #
+  local_filepath: !!str
+
+  depends: {
+    "system": "python3", 
+    "python_pip": "PyYAML"
+  }
+  recommends: {}
+  suggests: {}
+
+1.0.0:
+  home_page: !!str "https://github.com/Isle-0-Skye/minecraft_pack_manager"
+  download_url: !!str
+  local_filepath: !!str
+
+  depends: {
+    "system": "python3", 
+    "python_pip": "PyYAML"
+  }
+  recommends: {}
+  suggests: {}
