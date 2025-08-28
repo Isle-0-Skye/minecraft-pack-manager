@@ -723,7 +723,7 @@ def refresh_transfer_options(self) -> None:
         for directory in os.listdir(settings_data["instances_path"]):
             path = Path(settings_data["instances_path"], directory)
             if Path(path).is_dir():
-                local_instances[directory] = path
+                local_instances[directory] = path.as_posix()
     except FileNotFoundError as error:
         pLOG.warning(error)
 
@@ -845,7 +845,7 @@ def start_transfer(self) -> None:
         f"{dst}",
     ]
     settings = (
-        "--transfers=20 --checkers=50 --fast-list --max-backpLOG=10000 --drive-chunk-size=64M -P"
+        "--transfers=20 --checkers=25 --fast-list --max-backlog=1000 --drive-chunk-size=16M -P"
     )
 
     pLOG.info(f"source: {src}")
@@ -853,7 +853,7 @@ def start_transfer(self) -> None:
     pLOG.info(f"full command: {rclone_cmd}")
 
     if platform.system() == "Windows":
-        shell_cmd = []
+        shell_cmd = ["python"]
     elif platform.system() == "Linux":
         rclone_path = Path(
             UNIVERSALS.package_root(PROJECT_MANIFEST.name()), "tools", "rclone", "rclone"
