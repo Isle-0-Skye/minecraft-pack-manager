@@ -1,38 +1,68 @@
 {
-    "folders": [
-        {
-            "path": "."
-        }
-    ],
-    "settings": {
-        "editor.multiCursorModifier": "ctrlCmd",
-        "explorer.compactFolders": false,
-        "python.analysis.inlayHints.callArgumentNames": "all",
-        "python.analysis.inlayHints.functionReturnTypes": true,
-        "python.analysis.inlayHints.pytestParameters": true,
-        "python.analysis.inlayHints.variableTypes": true,
-        "python.analysis.typeCheckingMode": "basic",
-        "python.createEnvironment.contentButton": "show",
-        "scm.compactFolders": false,
-        "telemetry.feedback.enabled": false,
-        "telemetry.telemetryLevel": "off",
-        "workbench.startupEditor": "none",
-        "editor.rulers": [
-            72, 79, 99
-        ],
-        "workbench.colorCustomizations": {
-            "editorRuler.foreground": "#333333"
-        },
-        "[python]": {
-            "editor.formatOnSaveMode": "file",
-            "editor.formatOnType": false,
-            "editor.formatOnSave": true,
-            "editor.codeActionsOnSave": {
-                "source.fixAll": "explicit",
-                "source.organizeImports": "explicit"
-            },
-            "editor.defaultFormatter": "charliermarsh.ruff",
-        },
-        "ruff.nativeServer": "on",
-    }
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"editor.multiCursorModifier": "ctrlCmd",
+		"explorer.compactFolders": false,
+		"scm.compactFolders": false,
+		//
+		"workbench.startupEditor": "none",
+		//
+		"editor.rulers": [
+			72,
+			79,
+			99
+		],
+		"workbench.colorCustomizations": {
+			"editorRuler.foreground": "#333333"
+		},
+		//
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "explicit",
+			"source.organizeImports": "explicit"
+		},
+		"editor.formatOnSave": true,
+		"editor.formatOnSaveMode": "file",
+		"editor.formatOnType": false,
+		//
+		"[python]": {
+			"editor.defaultFormatter": "charliermarsh.ruff",
+		},
+		"ruff.nativeServer": "on",
+		//
+		"python.analysis.inlayHints.callArgumentNames": "all",
+		"python.analysis.inlayHints.functionReturnTypes": true,
+		"python.analysis.inlayHints.pytestParameters": true,
+		"python.analysis.inlayHints.variableTypes": true,
+		"python.analysis.typeCheckingMode": "strict",
+		"python.createEnvironment.contentButton": "show",
+		//
+		"mypy-type-checker.importStrategy": "fromEnvironment",
+		"mypy-type-checker.preferDaemon": true,
+		"mypy-type-checker.reportingScope": "workspace",
+		"mypy-type-checker.showNotifications": "always",
+		//
+		"chat.disableAIFeatures": true,
+		"chat.tools.global.autoApprove": false,
+		"editor.aiStats.enabled": false,
+		"editor.experimental.preferTreeSitter.css": false,
+		"editor.experimental.preferTreeSitter.ini": false,
+		"editor.experimental.preferTreeSitter.regex": false,
+		"editor.experimental.preferTreeSitter.typescript": false,
+		"editor.experimental.treeSitterTelemetry": false,
+		"githubPullRequests.codingAgent.enabled": false,
+		"githubPullRequests.experimental.chat": false,
+		"python.analysis.enablePerfTelemetry": false,
+		"python.analysis.reportExtraTelemetry": false,
+		"telemetry.editStats.details.enabled": false,
+		"telemetry.editStats.enabled": false,
+		"telemetry.editStats.showDecorations": false,
+		"telemetry.editStats.showStatusBar": false,
+		"telemetry.feedback.enabled": false,
+		"telemetry.telemetryLevel": "off",
+		"workbench.settings.showAISearchToggle": false,
+	}
 }

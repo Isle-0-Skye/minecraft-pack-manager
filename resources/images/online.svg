@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" version="1.1" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+<g transform="matrix(.9062 0 0 .9062 12 12)">
+<path d="m64 0v16h-32v16h-16v32h-16v128h16v32h16v16h32v16h128v-16h32v-16h16v-32h16v-128h-16v-32h-16v-16h-32v-16z" fill="#250" stroke-width="1.389"/>
+<path d="m80 16v16h-32v16h-16v32h-16v96h16v32h16v16h32v16h96v-16h32v-16h16v-32h16v-96h-16v-32h-16v-16h-32v-16z" fill="#338000" stroke-width="1.297"/>
+<path d="m80 32v16h-32v32h-16v96h16v32h32v16h96v-16h32v-32h16v-96h-16v-32h-32v-16z" fill="#4a0" stroke-width="4.966"/>
+<path d="m80 48v16h-16v16h-16v96h16v16h16v16h96v-16h16v-16h16v-96h-16v-16h-16v-16z" fill="#55d400" stroke-width=".9266"/>
+<path d="m96 80v16h-16v64h16v16h64v-16h16v-64h-16v-16z" fill="#4a0" stroke-width="1.026"/>
+<rect x="96" y="96" width="64" height="64" fill="#338000" stroke-width="1.185"/>
+<path d="m112 96v16h-16v32h16v16h32v-16h16v-32h-16v-16z" fill="#250" stroke-width="2.932"/>
+</g>
+</svg>

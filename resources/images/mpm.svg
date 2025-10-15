@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" version="1" xmlns="http://www.w3.org/2000/svg">
+  <rect y="8" width="8" height="8" ry="0" fill="#9bca6b" stroke-width="4"/>
+  <rect x="8" y="32" width="8" height="8" ry="0" fill="#583c28" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-40" y="32" width="8" height="8" ry="0" fill="#b8845b" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-32" y="32" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-40" y="24" width="8" height="8" ry="0" fill="#956b49" stroke-width="4"/>
+  <rect x="24" y="24" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-32" y="16" width="8" height="8" ry="0" fill="#583c28" stroke-width="4"/>
+  <rect x="32" y="16" width="8" height="8" ry="0" fill="#9bca6b" stroke-width="4"/>
+  <rect x="8" y="8" width="8" height="8" ry="0" fill="#72b248" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-48" y="40" width="8" height="8" ry="0" fill="#b8845b" stroke-width="4"/>
+  <rect x="16" y="40" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-48" y="32" width="8" height="8" ry="0" fill="#b8845b" stroke-width="4"/>
+  <rect x="16" y="32" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect x="16" y="24" width="8" height="8" ry="0" fill="#583c28" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-48" y="24" width="8" height="8" ry="0" fill="#6b6b6b" stroke-width="4"/>
+  <rect x="40" y="16" width="8" height="8" ry="0" fill="#956b49" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-24" y="8" width="8" height="8" ry="0" fill="#60a036" stroke-width="4"/>
+  <rect x="16" y="16" width="8" height="8" ry="0" fill="#60a036" stroke-width="4"/>
+  <rect transform="scale(1,-1)" x="24" y="-48" width="8" height="8" ry="0" fill="#b8845b" stroke-width="4"/>
+  <rect transform="scale(1,-1)" x="32" y="-48" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect transform="scale(-1)" x="-16" y="-48" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-56" y="32" width="8" height="8" ry="0" fill="#956b49" stroke-width="4"/>
+  <rect x="48" y="24" width="8" height="8" ry="0" fill="#9bca6b" stroke-width="4"/>
+  <rect x="32" y="8" width="8" height="8" ry="0" fill="#72b248" stroke-width="4"/>
+  <rect x="40" y="8" width="8" height="8" ry="0" fill="#56962c" stroke-width="4"/>
+  <rect x="48" y="8" width="8" height="8" ry="0" fill="#60a036" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-56" y="16" width="8" height="8" ry="0" fill="#72b248" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-16" y="24" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-32" y="8" width="8" height="8" ry="0" fill="#56962c" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-16" y="16" width="8" height="8" ry="0" fill="#60a036" stroke-width="4"/>
+  <rect transform="scale(1,-1)" x="48" y="-48" width="8" height="8" ry="0" fill="#583c28" stroke-width="4"/>
+  <rect x="48" y="56" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect x="24" y="56" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect x="32" y="56" width="8" height="8" ry="0" fill="#956b49" stroke-width="4"/>
+  <rect transform="scale(1,-1)" x="16" y="-64" width="8" height="8" ry="0" fill="#956b49" stroke-width="4"/>
+  <rect transform="scale(-1)" x="-48" y="-64" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect x="16" y="48" width="8" height="8" ry="0" fill="#583c28" stroke-width="4"/>
+  <rect x="24" y="48" width="8" height="8" ry="0" fill="#6b6b6b" stroke-width="4"/>
+  <rect x="40" y="48" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect x="32" y="48" width="8" height="8" ry="0" fill="#583c28" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-56" y="48" width="8" height="8" ry="0" fill="#583c28" stroke-width="4"/>
+  <rect transform="scale(-1)" x="-16" y="-56" width="8" height="8" ry="0" fill="#6b6b6b" stroke-width="4"/>
+  <rect transform="scale(1,-1)" x="8" y="-64" width="8" height="8" ry="0" fill="#b8845b" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-64" y="32" width="8" height="8" ry="0" fill="#b8845b" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-64" y="24" width="8" height="8" ry="0" fill="#956b49" stroke-width="4"/>
+  <rect x="56" y="16" width="8" height="8" ry="0" fill="#9bca6b" stroke-width="4"/>
+  <rect transform="scale(1,-1)" x="56" y="-48" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect x="56" y="8" width="8" height="8" ry="0" fill="#72b248" stroke-width="4"/>
+  <path d="m56 56h8c0 8-8 8-8 8z" fill="#956b49" stroke-width="4"/>
+  <rect x="56" y="48" width="8" height="8" ry="0" fill="#583c28" stroke-width="4"/>
+  <rect transform="scale(-1,1)" x="-56" width="8" height="8" ry="0" fill="#72b248" stroke-width="4"/>
+  <rect x="40" width="8" height="8" ry="0" fill="#60a036" stroke-width="4"/>
+  <rect x="8" width="8" height="8" ry="0" fill="#72b248" stroke-width="4"/>
+  <rect x="16" width="8" height="8" ry="0" fill="#56962c" stroke-width="4"/>
+  <path d="m8 0s-8 0-8 8h8z" fill="#60a036" stroke-width="4"/>
+  <rect x="32" width="8" height="8" ry="0" fill="#56962c" stroke-width="4"/>
+  <rect x="24" width="8" height="8" ry="0" fill="#72b248" stroke-width="4"/>
+  <path d="m56 0c8 0 8 8 8 8h-8z" fill="#9bca6b" stroke-width="4"/>
+  <rect transform="scale(-1)" x="-8" y="-24" width="8" height="8" ry="0" fill="#b8845b" stroke-width="4"/>
+  <rect transform="scale(1,-1)" y="-56" width="8" height="8" ry="0" fill="#b8845b" stroke-width="4"/>
+  <rect y="40" width="8" height="8" ry="0" fill="#785439" stroke-width="4"/>
+  <rect y="32" width="8" height="8" ry="0" fill="#956b49" stroke-width="4"/>
+  <path d="m8 64c-8 0-8-8-8-8h8z" fill="#785439" stroke-width="4"/>
+  <rect y="24" width="8" height="8" ry="0" fill="#583c28" stroke-width="4"/>
+  <text transform="scale(.98117 1.0192)" x="23.441282" y="54.945801" fill="#00ffff" font-family="Minecraft" font-size="16.362px" stroke-width="1.054" xml:space="preserve"><tspan x="23.441282" y="54.945801">MPM</tspan></text>
+  <rect x="24" y="57" width="32" height="2" fill="#0ff"/>
+</svg>

@@ -1,14 +1,5 @@
 target-version = "py312"
 
-extend-exclude = [
-    ".git",
-    ".vscode",
-    "manifests",
-    "packages",
-    "templates",
-    "vault"
-]
-
 indent-width = 4
 line-length = 100
 respect-gitignore = true
@@ -21,6 +12,8 @@ indent-style = "space"
 line-ending = "lf"
 quote-style = "double"
 
+[lint]
+extend-select = ["TC002", "TID252"]
 
 [lint.isort]
 lines-after-imports = 2
