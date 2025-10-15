@@ -1,0 +1,96 @@
+QApplication {
+    border-radius: 0px;
+    font-family: Monocraft;
+    font-size: 16px;
+    padding: 0px;
+    text-align: left;
+}
+
+
+
+QWidget {
+    border-radius: 0px;
+    font-family: Monocraft;
+    font-size: 16px;
+    padding: 0px;
+    text-align: left;
+}
+
+
+
+QLabel {
+    background-color: #14522A;
+    border-radius: 12px;
+    padding: 8px;
+    text-align: center;
+}
+
+QLabel#background {
+    background-color: transparent;
+    border-radius: 0px;
+    padding: 0px;
+}
+
+QLabel#pageTitle {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    font-size: 32px;
+    text-align: center;
+}
+
+
+
+QPushButton {
+    background-color: #14522A;
+    border-radius: 12px;
+    padding: 8px;
+    text-align: center;
+}
+
+QPushButton::pressed {
+    background-color: #0A2915;
+}
+
+QPushButton#homeButton {
+    font-size: 24px;
+    text-align: left;
+}
+
+QPushButton#iconButton {
+    background-color: transparent;
+}
+
+
+
+QLineEdit {
+    background-color: rgba(60, 80, 20, 0.5);
+    border-color: #14522A;
+    border-radius: 12px;
+    border-style: outset;
+    border-width: 4px;
+    padding: 8px;
+}
+
+
+
+QComboBox {
+    background-color: rgba(60, 80, 20, 0.5);
+    border-color: #14522A;
+    border-radius: 12px;
+    border-style: outset;
+    padding: 8px;
+}
+
+QComboBox::down-arrow {
+    background-image: url(images:small_down.svg);
+    background-position: left;
+    background-repeat: no-repeat;
+    border-color: #0A2915;
+    padding-right: 32px;
+    width: 32;
+    height: 32;
+}
+
+QComboBox::drop-down:button {
+    border-color: #0A2915;
+}

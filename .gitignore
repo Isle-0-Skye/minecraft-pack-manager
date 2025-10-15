@@ -1,0 +1,5 @@
+*.pyi
+
+settings/*
+!settings/stylesheet.css
+third_party/

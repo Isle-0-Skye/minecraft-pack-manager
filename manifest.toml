@@ -1,0 +1,27 @@
+
+help_text = [
+    "{H3}minecraft-pack-manager version 1.0.0 under the LGPL license 2025",
+    "",
+    "{H1}minecraft-pack-manager{H2} [{H1}options{H2}] [{H1}arguments{H2}] [{H1}flags{H2}]",
+    "",
+    "example: {H1}minecraft-pack-manager --gui{H2}",
+    "",
+    "the format / layout of this help text is:",
+    "",
+    "[{H1}input type{H2}]",
+    "  {H1}full name {R}|{H1} short name {R}-{H1} does the option take an argument {R}-{H1} input description{H2}",
+    "",
+    "the following inputs are valid:",
+    "",
+    "[{H1}options{H2}]",
+    "  {H1}help    {R}|{H1} N/A {R}-{H1} False {R}-{H2} print this help text",
+    "  {H1}version {R}|{H1} N/A {R}-{H1} False {R}-{H2} print the version as json",
+    "",
+    "[{H1}flags{H2}]",
+    "  {H1}--gui   {R}|{H1} N/A {R}-{H2} enable the gui{R}",
+]
+
+[version]
+major = 1
+minor = 0
+revision = 0
