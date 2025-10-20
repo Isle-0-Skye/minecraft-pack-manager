@@ -1,5 +1,16 @@
+# ignore these generic file types
 *.pyi
+*.pyc
 
+# ignore these generic directories
+__pycache__/
+
+# ignore the contents of the settings directory
+# except the stylesheet file
 settings/*
 !settings/stylesheet.css
-third_party/
+
+# ignore the contents of the third_party directory
+# except any license files
+third_party/*
+!LICENSE_*.md
