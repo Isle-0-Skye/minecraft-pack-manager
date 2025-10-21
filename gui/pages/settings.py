@@ -149,19 +149,15 @@ class SettingsPage(BasePage):
                 "-c",
                 f"sleep 3 ; {sys.executable} -m photon update github:Isle-0-Skye.minecraft-pack-manager ; {sys.executable} -m minecraft_pack_manager --gui",
             ]
-            process = subprocess.Popen(
+            _process = subprocess.Popen(
                 command,
                 start_new_session=True,
             )
         else:
             command = [
-                sys.executable,
-                "-m",
-                "photon",
-                "update",
-                "github:Isle-0-Skye.minecraft-pack-manager",
+                f"powershell.exe Start-Sleep -Seconds 5 ; {sys.executable} -m photon update github:Isle-0-Skye.minecraft-pack-manager ; {sys.executable} -m minecraft_pack_manager --gui",
             ]
-            process = subprocess.Popen(
+            _process = subprocess.Popen(
                 command,
                 start_new_session=True,
                 creationflags=subprocess.DETACHED_PROCESS,
