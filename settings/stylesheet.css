@@ -82,7 +82,7 @@ QComboBox {
 }
 
 QComboBox::down-arrow {
-    background-image: url(images:small_down.svg);
+    background-image: url(images:down_small.svg);
     background-position: left;
     background-repeat: no-repeat;
     border-color: #0A2915;

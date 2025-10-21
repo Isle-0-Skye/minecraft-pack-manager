@@ -1,6 +1,6 @@
 
 help_text = [
-    "{H3}minecraft-pack-manager version 1.0.0 under the LGPL license 2025",
+    "{H3}minecraft-pack-manager version 1.0.1 under the LGPL license 2025",
     "",
     "{H1}minecraft-pack-manager{H2} [{H1}options{H2}] [{H1}arguments{H2}] [{H1}flags{H2}]",
     "",
@@ -24,4 +24,4 @@ help_text = [
 [version]
 major = 1
 minor = 0
-revision = 0
+revision = 1
