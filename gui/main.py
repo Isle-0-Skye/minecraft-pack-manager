@@ -1,6 +1,6 @@
 import sys
 
-from minecraft_pack_manager import APP_PACKAGE, APP_PATHS
+from minecraft_pack_manager import APP_LOGGER, APP_PACKAGE, APP_PATHS
 from minecraft_pack_manager.gui.container import Container
 from minecraft_pack_manager.gui.page import BasePage
 from minecraft_pack_manager.gui.pages.download import DownloadPage
@@ -23,7 +23,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 
 def main() -> int:
     name = "Minecraft Pack Manager"
-    version = "1.0.0"
+    version = "1.0.1"
     window_title: str = f"{name} {version}"
 
     width = 720
@@ -31,6 +31,16 @@ def main() -> int:
     window_size = QSize(width, height)
 
     application = QApplication(sys.argv)
+
+    for entry in APP_PATHS.root().joinpath("third_party", "qt", "plugins").rglob("*"):
+        extension: list[str] = entry.name.split(entry.stem)
+
+        if extension.__len__() < 2:
+            extension.insert(0, "")
+
+        if extension[1] in [".so", ".dll"]:
+            APP_LOGGER.debug(f"loading {extension[1]}: {entry}")
+            application.addLibraryPath(entry.resolve().as_posix())
 
     mpm = MinecraftPackManager(window_title, window_size, application)
     mpm.show()
