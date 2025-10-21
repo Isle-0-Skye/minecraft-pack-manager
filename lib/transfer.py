@@ -2,9 +2,14 @@ import json
 import subprocess
 
 from dataclasses import dataclass
+from io import BytesIO
 from pathlib import Path
+from zipfile import ZipFile
 
-from minecraft_pack_manager import APP_PACKAGE, APP_PATHS
+import requests
+
+from minecraft_pack_manager import APP_LOGGER, APP_PACKAGE, APP_PATHS
+from nbt import nbt
 from PySide6.QtWidgets import QComboBox
 
 
@@ -22,6 +27,72 @@ class RemoteInfo:
 # < ----------------------------------------------------------------------- > #
 
 
+def downloadRclone() -> Path | None:
+    if Path("/etc/os-release").exists() or Path("/usr/lib/os-release").exists():
+        rclone_exe = APP_PATHS.root().joinpath("third_party", "rclone", "rclone")
+        src_link = "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
+    else:
+        rclone_exe = APP_PATHS.root().joinpath("third_party", "rclone", "rclone.exe")
+        src_link = "https://downloads.rclone.org/rclone-current-windows-amd64.zip"
+
+    response = requests.get(src_link)
+
+    if response.status_code != 200:
+        return None
+
+    with ZipFile(BytesIO(response.content), "r") as zfp:
+        zfp.extractall(APP_PATHS.root().joinpath("third_party", "rclone"))
+
+    for entry in APP_PATHS.root().joinpath("third_party", "rclone").rglob("*"):
+        if entry.is_dir():
+            continue
+
+        entry.replace(entry.parent.parent.joinpath(entry.name))
+
+    for entry in APP_PATHS.root().joinpath("third_party", "rclone").rglob("*"):
+        if entry.is_dir():
+            try:
+                entry.rmdir()
+            except Exception as error:
+                APP_LOGGER.error(error)
+
+    for entry in APP_PATHS.root().joinpath("third_party").rglob("*"):
+        if entry.is_dir() or entry.name.endswith((".so", ".dll")):
+            entry.chmod(0o740)
+            continue
+
+        entry.chmod(0o640)
+
+    if not rclone_exe.exists():
+        return None
+
+    rclone_exe.chmod(0o740)
+
+    return rclone_exe
+
+
+# < ----------------------------------------------------------------------- > #
+
+
+def cleanInstanceSaves(instance: Path) -> None:
+    if not instance.exists():
+        return None
+
+    for entry in instance.rglob("level.dat"):
+        data = nbt.NBTFile(entry)
+
+        try:
+            data.get("Data").pop("Player")
+        except Exception as error:
+            APP_LOGGER.warning("failed to clean player data")
+            APP_LOGGER.debug(error)
+
+        data.write_file(entry)
+
+
+# < ----------------------------------------------------------------------- > #
+
+
 def updateListFromLocal(to_update: QComboBox) -> None:
     config = APP_PACKAGE.getConfig().getConfig()
     path = config.get("instances_path")
@@ -33,6 +104,7 @@ def updateListFromLocal(to_update: QComboBox) -> None:
         if not entry.is_dir():
             continue
 
+        cleanInstanceSaves(entry.resolve())
         to_update.addItem(f"LOCL:{entry.name}")
 
 
@@ -46,6 +118,9 @@ def updateListFromRemote(to_update: QComboBox) -> None:
         rclone_exe = APP_PATHS.root().joinpath("third_party", "rclone", "rclone.exe")
 
     if not rclone_exe.exists():
+        rclone_exe = downloadRclone()
+
+    if rclone_exe is None or not rclone_exe.exists():
         return None
 
     rclone_config_file = APP_PATHS.settings().joinpath("rclone.conf")
@@ -136,6 +211,9 @@ def transfer(source_input: QComboBox, destination_input: QComboBox) -> None:
         rclone_exe = APP_PATHS.root().joinpath("third_party", "rclone", "rclone.exe")
 
     if not rclone_exe.exists():
+        rclone_exe = downloadRclone()
+
+    if rclone_exe is None or not rclone_exe.exists():
         return None
 
     rclone_config_file = APP_PATHS.settings().joinpath("rclone.conf")

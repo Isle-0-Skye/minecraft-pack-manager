@@ -1,0 +1,4 @@
+NBT==1.5.1
+PySide6==6.9.3
+requests==2.32.5
+toml==0.10.2
