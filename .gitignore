@@ -12,5 +12,4 @@ settings/*
 
 # ignore the contents of the third_party directory
 # except any license files
-third_party/*
-!LICENSE_*.md
+third_party/rclone
